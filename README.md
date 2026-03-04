@@ -27,6 +27,27 @@
   - 支持 Stepfun / DeepSeek / Moonshot 等 OpenAI-compatible API
   - 可配置人格（soul），只做共鸣式感叹，不做价值判断
 
+## 安装
+
+### 快速安装（推荐）
+
+```bash
+git clone https://github.com/peiyade/pi-capture-tui.git
+cd pi-capture-tui
+./install.sh
+```
+
+支持 fish/zsh/bash，自动配置 PATH。
+
+### 手动安装
+
+```bash
+cargo build --release
+cp ./target/release/pi-capture ~/.local/bin/
+```
+
+详见 [INSTALL.md](INSTALL.md)。
+
 ## Markdown 文件格式
 
 文件保存到 `~/Documents/PNote/Inbox.md`，格式如下：
