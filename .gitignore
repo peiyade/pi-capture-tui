@@ -1,0 +1,6 @@
+/target
+.env
+*.local
+config.local.yaml
+.claude/
+pi-inbox/
