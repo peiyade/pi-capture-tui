@@ -311,7 +311,7 @@ impl App {
         // Entry line with task checkbox and timezone
         // Format: - [ ] content [created:: 2026-03-04T16:01:27+08:00]
         let entry_line = format!(
-            "- [ ] {} [created:: {}+08:00]\n",
+            "- [ ] {} [created:: {}+08:00]",
             entry.content.replace('\n', " "),
             entry.timestamp
         );
@@ -388,12 +388,24 @@ impl App {
 
                 let insert_pos = day_pos + day_line.len() + next_heading_pos;
 
+                // Check if we need a newline before the new entry
+                let prefix = if insert_pos > 0 && !existing_content[..insert_pos].ends_with('\n') {
+                    "\n"
+                } else {
+                    ""
+                };
+
                 new_content = format!(
-                    "{}\n{}{}",
+                    "{}{}\n{}",
                     &existing_content[..insert_pos],
-                    entry_line,
-                    &existing_content[insert_pos..]
+                    prefix,
+                    entry_line
                 );
+
+                // Add remaining content if any
+                if insert_pos < existing_content.len() {
+                    new_content.push_str(&existing_content[insert_pos..]);
+                }
             }
         }
 

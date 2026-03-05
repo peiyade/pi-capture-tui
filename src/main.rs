@@ -1,6 +1,10 @@
 use anyhow::Result;
 use crossterm::{
-    event::{DisableBracketedPaste, EnableBracketedPaste},
+    event::{
+        DisableBracketedPaste, EnableBracketedPaste,
+        KeyboardEnhancementFlags, PopKeyboardEnhancementFlags,
+        PushKeyboardEnhancementFlags,
+    },
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand,
 };
@@ -46,6 +50,14 @@ async fn main() -> Result<()> {
     let mut stdout = stdout();
     stdout.execute(EnterAlternateScreen)?;
     stdout.execute(EnableBracketedPaste)?;
+
+    // Enable keyboard enhancement protocol for better key event handling
+    // This helps with IME input methods and provides KeyEventKind/KeyEventState
+    let _ = stdout.execute(PushKeyboardEnhancementFlags(
+        KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES
+            | KeyboardEnhancementFlags::REPORT_ALTERNATE_KEYS
+            | KeyboardEnhancementFlags::REPORT_EVENT_TYPES
+    ));
 
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
@@ -100,6 +112,7 @@ async fn main() -> Result<()> {
 
     // Cleanup
     let mut stdout_out = std::io::stdout();
+    let _ = stdout_out.execute(PopKeyboardEnhancementFlags);
     stdout_out.execute(DisableBracketedPaste)?;
     stdout_out.execute(LeaveAlternateScreen)?;
     disable_raw_mode()?;

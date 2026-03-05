@@ -1,5 +1,5 @@
 use crate::app::AppEvent;
-use crossterm::event::{self, Event, KeyCode, KeyEvent};
+use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
 use std::time::Duration;
 use tokio::sync::mpsc;
 
@@ -22,6 +22,13 @@ impl EventHandler {
             if event::poll(timeout).unwrap_or(false) {
                 match event::read() {
                     Ok(Event::Key(key)) => {
+                        // Filter: only handle key press events (not Repeat or Release)
+                        // This helps with IME input methods (e.g., Rime/Squirrel)
+                        // which may generate intermediate events during composition
+                        if key.kind != KeyEventKind::Press {
+                            continue;
+                        }
+
                         if self.sender.send(AppEvent::Key(key)).is_err() {
                             break;
                         }
