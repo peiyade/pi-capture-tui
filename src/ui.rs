@@ -329,7 +329,11 @@ fn render_input(frame: &mut Frame, app: &App, area: Rect) {
     let cursor_x = inner.x + 2 + cursor_offset as u16;
     let cursor_y = inner.y + visual_line as u16;
 
-    frame.set_cursor_position((cursor_x, cursor_y));
+    // Only set cursor position if not disabled (for IME compatibility)
+    // Set PI_CAPTURE_NO_CURSOR=1 to disable cursor positioning
+    if std::env::var("PI_CAPTURE_NO_CURSOR").is_err() {
+        frame.set_cursor_position((cursor_x, cursor_y));
+    }
 }
 
 fn render_status(frame: &mut Frame, app: &App, area: Rect) {

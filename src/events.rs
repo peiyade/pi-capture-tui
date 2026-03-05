@@ -22,10 +22,12 @@ impl EventHandler {
             if event::poll(timeout).unwrap_or(false) {
                 match event::read() {
                     Ok(Event::Key(key)) => {
-                        // Filter: only handle key press events (not Repeat or Release)
-                        // This helps with IME input methods (e.g., Rime/Squirrel)
-                        // which may generate intermediate events during composition
-                        if key.kind != KeyEventKind::Press {
+                        // Skip key release events to avoid double-processing
+                        // KeyEventKind::Release is only sent when keyboard enhancement is enabled
+                        // For IME input, we want to process Press events but the cursor positioning
+                        // in raw mode can interfere with IME. We rely on the terminal to handle
+                        // IME composition correctly.
+                        if key.kind == KeyEventKind::Release {
                             continue;
                         }
 

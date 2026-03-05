@@ -51,13 +51,21 @@ async fn main() -> Result<()> {
     stdout.execute(EnterAlternateScreen)?;
     stdout.execute(EnableBracketedPaste)?;
 
-    // Enable keyboard enhancement protocol for better key event handling
-    // This helps with IME input methods and provides KeyEventKind/KeyEventState
-    let _ = stdout.execute(PushKeyboardEnhancementFlags(
-        KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES
-            | KeyboardEnhancementFlags::REPORT_ALTERNATE_KEYS
-            | KeyboardEnhancementFlags::REPORT_EVENT_TYPES
-    ));
+    // Try to enable keyboard enhancement protocol
+    // This helps distinguish key press/repeat/release events
+    let kb_enhancement_enabled = stdout
+        .execute(PushKeyboardEnhancementFlags(
+            KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES
+                | KeyboardEnhancementFlags::REPORT_ALTERNATE_KEYS
+                | KeyboardEnhancementFlags::REPORT_EVENT_TYPES,
+        ))
+        .is_ok();
+
+    // For terminals without keyboard enhancement (or with IME issues),
+    // we'll handle events more conservatively
+    if !kb_enhancement_enabled {
+        eprintln!("Note: Keyboard enhancement not supported, using basic input handling");
+    }
 
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;

@@ -48,6 +48,34 @@ cp ./target/release/pi-capture ~/.local/bin/
 
 详见 [INSTALL.md](INSTALL.md)。
 
+## 终端兼容性
+
+| 终端 | 状态 | 备注 |
+|------|------|------|
+| iTerm2 | ✅ 完全支持 | macOS 推荐 |
+| WezTerm | ✅ 完全支持 | Kitty 键盘协议 |
+| Alacritty | ✅ 支持 | 0.13+ 版本 |
+| Ghostty | ⚠️ 需要配置 | 见下方 IME 问题 |
+| Terminal.app | ⚠️ 基础支持 | 功能有限 |
+
+### IME 输入问题（中文/日文/韩文）
+
+某些终端在输入中文时可能出现光标跳动或内容错位。
+
+**解决方法：**
+
+1. **禁用光标定位（推荐）**
+   ```bash
+   PI_CAPTURE_NO_CURSOR=1 pi-capture
+   ```
+
+2. **检查终端配置**
+   - **Ghostty**: 确保 `keybind = clear` 未被覆盖
+   - **Alacritty**: 启用 `ime` 配置
+
+3. **使用兼容终端**
+   如果问题持续，建议使用 iTerm2 或 WezTerm
+
 ## Markdown 文件格式
 
 文件保存到 `~/Documents/PNote/Inbox.md`，格式如下：
