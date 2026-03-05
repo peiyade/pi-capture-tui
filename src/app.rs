@@ -329,23 +329,24 @@ impl App {
         let mut new_content = existing_content.clone();
 
         if !file_exists || existing_content.trim().is_empty() {
-            // New file - create full structure
+            // New file - create full structure (each heading followed by newline)
             new_content = format!(
-                "{}\n\n{}\n\n{}\n\n{}",
+                "{}\n\n{}\n\n{}\n{}",
                 year_heading,
                 month_heading,
                 day_heading,
                 entry_line
             );
         } else {
-            // Check if year heading exists
-            if !existing_content.contains(&year_heading) {
+            // Check if year heading exists (match line exactly)
+            let year_line = format!("{}\n", year_heading);
+            if !existing_content.contains(&year_line) {
                 // Add year, month, day at the end
                 new_content.push_str(&format!("\n\n{}\n\n{}\n\n{}\n\n{}",
                     year_heading, month_heading, day_heading, entry_line));
-            } else if !existing_content.contains(&month_heading) {
+            } else if !existing_content.contains(&format!("{}\n", month_heading)) {
                 // Year exists but not month - insert after year heading
-                let year_pos = existing_content.find(&year_heading).unwrap();
+                let year_pos = existing_content.find(&year_line).unwrap();
                 let insert_pos = existing_content[year_pos..]
                     .find('\n')
                     .map(|p| year_pos + p)
@@ -359,9 +360,10 @@ impl App {
                     entry_line,
                     &existing_content[insert_pos..]
                 );
-            } else if !existing_content.contains(&day_heading) {
+            } else if !existing_content.contains(&format!("{}\n", day_heading)) {
                 // Year and month exist but not day - insert after month heading
-                let month_pos = existing_content.rfind(&month_heading).unwrap();
+                let month_line = format!("{}\n", month_heading);
+                let month_pos = existing_content.rfind(&month_line).unwrap();
                 let insert_pos = existing_content[month_pos..]
                     .find('\n')
                     .map(|p| month_pos + p)
@@ -377,13 +379,14 @@ impl App {
             } else {
                 // All headings exist - append to the end of today's section
                 // Find the day heading and append after the last entry under it
-                let day_pos = existing_content.rfind(&day_heading).unwrap();
-                let after_day = &existing_content[day_pos + day_heading.len()..];
+                let day_line = format!("{}\n", day_heading);
+                let day_pos = existing_content.rfind(&day_line).unwrap();
+                let after_day = &existing_content[day_pos + day_line.len()..];
 
                 // Find the next heading (if any) or end of file
                 let next_heading_pos = after_day.find("\n#").unwrap_or(after_day.len());
 
-                let insert_pos = day_pos + day_heading.len() + next_heading_pos;
+                let insert_pos = day_pos + day_line.len() + next_heading_pos;
 
                 new_content = format!(
                     "{}\n{}{}",
